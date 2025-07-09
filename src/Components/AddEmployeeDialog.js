@@ -9,7 +9,7 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
-  Grid
+  Grid,
 } from "@mui/material";
 
 const stateCityMap = {
@@ -41,7 +41,11 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
     const newErrors = {};
     if (!employee.firstName.trim()) newErrors.firstName = "First Name is required";
     if (!employee.lastName.trim()) newErrors.lastName = "Last Name is required";
-    if (!employee.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    if (!employee.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone Number is required";
+    } else if (!/^[0-9]{10}$/.test(employee.phoneNumber.trim())) {
+      newErrors.phoneNumber = "Phone Number must be exactly 10 digits";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -106,7 +110,13 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               required
               label={<span>Phone Number <span style={{ color: "red" }}>*</span></span>}
               value={employee.phoneNumber}
-              onChange={(e) => handleChange("phoneNumber", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,10}$/.test(value)) {
+                  handleChange("phoneNumber", value);
+                }
+              }}
+              inputProps={{ maxLength: 10 }}
               fullWidth
               margin="dense"
               error={Boolean(errors.phoneNumber)}
@@ -132,7 +142,9 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               margin="dense"
             >
               {Object.keys(stateCityMap).map((state) => (
-                <MenuItem key={state} value={state}>{state}</MenuItem>
+                <MenuItem key={state} value={state}>
+                  {state}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
@@ -147,7 +159,9 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               disabled={!employee.state}
             >
               {(stateCityMap[employee.state] || []).map((city) => (
-                <MenuItem key={city} value={city}>{city}</MenuItem>
+                <MenuItem key={city} value={city}>
+                  {city}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
