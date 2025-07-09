@@ -7,12 +7,12 @@ import {
   Button,
   TextField,
   MenuItem,
-  FormControlLabel,
   Checkbox,
-  Grid,
+  FormControlLabel,
+  Grid
 } from "@mui/material";
 
-const citiesByState = {
+const stateCityMap = {
   Rajasthan: ["Jaipur", "Jodhpur", "Udaipur"],
   Maharashtra: ["Mumbai", "Pune", "Nagpur"],
   Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
@@ -30,12 +30,24 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
     isActive: true,
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (field, value) => {
     setEmployee({ ...employee, [field]: value });
-    if (field === "state") setEmployee({ ...employee, state: value, city: "" });
+    setErrors({ ...errors, [field]: "" });
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!employee.firstName.trim()) newErrors.firstName = "First Name is required";
+    if (!employee.lastName.trim()) newErrors.lastName = "Last Name is required";
+    if (!employee.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
+    if (!validate()) return;
     onAdd(employee);
     onClose();
     setEmployee({
@@ -48,6 +60,7 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
       city: "",
       isActive: true,
     });
+    setErrors({});
   };
 
   return (
@@ -63,6 +76,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               onChange={(e) => handleChange("firstName", e.target.value)}
               fullWidth
               margin="dense"
+              error={Boolean(errors.firstName)}
+              helperText={errors.firstName}
             />
           </Grid>
           <Grid item xs={6}>
@@ -73,6 +88,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               onChange={(e) => handleChange("lastName", e.target.value)}
               fullWidth
               margin="dense"
+              error={Boolean(errors.lastName)}
+              helperText={errors.lastName}
             />
           </Grid>
           <Grid item xs={6}>
@@ -92,6 +109,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               onChange={(e) => handleChange("phoneNumber", e.target.value)}
               fullWidth
               margin="dense"
+              error={Boolean(errors.phoneNumber)}
+              helperText={errors.phoneNumber}
             />
           </Grid>
           <Grid item xs={12}>
@@ -112,10 +131,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               fullWidth
               margin="dense"
             >
-              {Object.keys(citiesByState).map((state) => (
-                <MenuItem key={state} value={state}>
-                  {state}
-                </MenuItem>
+              {Object.keys(stateCityMap).map((state) => (
+                <MenuItem key={state} value={state}>{state}</MenuItem>
               ))}
             </TextField>
           </Grid>
@@ -129,10 +146,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               margin="dense"
               disabled={!employee.state}
             >
-              {(citiesByState[employee.state] || []).map((city) => (
-                <MenuItem key={city} value={city}>
-                  {city}
-                </MenuItem>
+              {(stateCityMap[employee.state] || []).map((city) => (
+                <MenuItem key={city} value={city}>{city}</MenuItem>
               ))}
             </TextField>
           </Grid>
