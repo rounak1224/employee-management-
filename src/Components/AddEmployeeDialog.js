@@ -1,88 +1,159 @@
 import React, { useState } from "react";
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Grid
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  Grid,
 } from "@mui/material";
 
-const statesAndCities = {
-  Rajasthan: ["Jaipur", "Udaipur", "Jodhpur"],
+const citiesByState = {
+  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur"],
   Maharashtra: ["Mumbai", "Pune", "Nagpur"],
   Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
 };
 
 function AddEmployeeDialog({ open, onClose, onAdd }) {
-  const [form, setForm] = useState({
-    firstName: "", lastName: "", email: "", address: "",
-    phoneNumber: "", state: "", city: "", isActive: false,
+  const [employee, setEmployee] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    address: "",
+    phoneNumber: "",
+    state: "",
+    city: "",
+    isActive: true,
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const handleChange = (field, value) => {
+    setEmployee({ ...employee, [field]: value });
+    if (field === "state") setEmployee({ ...employee, state: value, city: "" });
   };
 
   const handleSubmit = () => {
-    onAdd(form);
+    onAdd(employee);
     onClose();
-    setForm({
-      firstName: "", lastName: "", email: "", address: "",
-      phoneNumber: "", state: "", city: "", isActive: false,
+    setEmployee({
+      firstName: "",
+      lastName: "",
+      email: "",
+      address: "",
+      phoneNumber: "",
+      state: "",
+      city: "",
+      isActive: true,
     });
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Add Employee</DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} sm={6}>
-            <TextField label="First Name" name="firstName" fullWidth value={form.firstName} onChange={handleChange} />
+      <DialogContent>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              required
+              label={<span>First Name <span style={{ color: "red" }}>*</span></span>}
+              value={employee.firstName}
+              onChange={(e) => handleChange("firstName", e.target.value)}
+              fullWidth
+              margin="dense"
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Last Name" name="lastName" fullWidth value={form.lastName} onChange={handleChange} />
+          <Grid item xs={6}>
+            <TextField
+              required
+              label={<span>Last Name <span style={{ color: "red" }}>*</span></span>}
+              value={employee.lastName}
+              onChange={(e) => handleChange("lastName", e.target.value)}
+              fullWidth
+              margin="dense"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Email"
+              value={employee.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              fullWidth
+              margin="dense"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              required
+              label={<span>Phone Number <span style={{ color: "red" }}>*</span></span>}
+              value={employee.phoneNumber}
+              onChange={(e) => handleChange("phoneNumber", e.target.value)}
+              fullWidth
+              margin="dense"
+            />
           </Grid>
           <Grid item xs={12}>
-            <TextField label="Email" name="email" type="email" fullWidth value={form.email} onChange={handleChange} />
+            <TextField
+              label="Address"
+              value={employee.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              fullWidth
+              margin="dense"
+            />
           </Grid>
-          <Grid item xs={12}>
-            <TextField label="Address" name="address" fullWidth value={form.address} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="Phone Number" name="phoneNumber" fullWidth value={form.phoneNumber} onChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={6}>
             <TextField
               select
               label="State"
-              name="state"
+              value={employee.state}
+              onChange={(e) => handleChange("state", e.target.value)}
               fullWidth
-              value={form.state}
-              onChange={handleChange}
+              margin="dense"
             >
-              {Object.keys(statesAndCities).map((state) => (
-                <MenuItem key={state} value={state}>{state}</MenuItem>
+              {Object.keys(citiesByState).map((state) => (
+                <MenuItem key={state} value={state}>
+                  {state}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={6}>
             <TextField
               select
               label="City"
-              name="city"
+              value={employee.city}
+              onChange={(e) => handleChange("city", e.target.value)}
               fullWidth
-              value={form.city}
-              onChange={handleChange}
-              disabled={!form.state}
+              margin="dense"
+              disabled={!employee.state}
             >
-              {form.state && statesAndCities[form.state].map((city) => (
-                <MenuItem key={city} value={city}>{city}</MenuItem>
+              {(citiesByState[employee.state] || []).map((city) => (
+                <MenuItem key={city} value={city}>
+                  {city}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={employee.isActive}
+                  onChange={(e) => handleChange("isActive", e.target.checked)}
+                />
+              }
+              label="Is Active"
+            />
+          </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ padding: 2 }}>
-        <Button onClick={onClose} color="secondary">Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">Add</Button>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSubmit} variant="contained" color="primary">
+          Add
+        </Button>
       </DialogActions>
     </Dialog>
   );
