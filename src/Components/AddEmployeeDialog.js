@@ -39,13 +39,24 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
 
   const validate = () => {
     const newErrors = {};
+
     if (!employee.firstName.trim()) newErrors.firstName = "First Name is required";
     if (!employee.lastName.trim()) newErrors.lastName = "Last Name is required";
-    if (!employee.phoneNumber.trim()) {
+
+    const phone = employee.phoneNumber.trim();
+    if (!phone) {
       newErrors.phoneNumber = "Phone Number is required";
-    } else if (!/^[0-9]{10}$/.test(employee.phoneNumber.trim())) {
-      newErrors.phoneNumber = "Phone Number must be exactly 10 digits";
+    } else if (!/^\d{10,11}$/.test(phone)) {
+      newErrors.phoneNumber = "Phone Number must be 10 or 11 digits";
     }
+
+    if (employee.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(employee.email.trim())) {
+        newErrors.email = "Invalid email format";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -103,6 +114,8 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               onChange={(e) => handleChange("email", e.target.value)}
               fullWidth
               margin="dense"
+              error={Boolean(errors.email)}
+              helperText={errors.email}
             />
           </Grid>
           <Grid item xs={6}>
@@ -112,11 +125,11 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               value={employee.phoneNumber}
               onChange={(e) => {
                 const value = e.target.value;
-                if (/^\d{0,10}$/.test(value)) {
+                if (/^\d{0,11}$/.test(value)) {
                   handleChange("phoneNumber", value);
                 }
               }}
-              inputProps={{ maxLength: 10 }}
+              inputProps={{ maxLength: 11 }}
               fullWidth
               margin="dense"
               error={Boolean(errors.phoneNumber)}
@@ -142,9 +155,7 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               margin="dense"
             >
               {Object.keys(stateCityMap).map((state) => (
-                <MenuItem key={state} value={state}>
-                  {state}
-                </MenuItem>
+                <MenuItem key={state} value={state}>{state}</MenuItem>
               ))}
             </TextField>
           </Grid>
@@ -159,9 +170,7 @@ function AddEmployeeDialog({ open, onClose, onAdd }) {
               disabled={!employee.state}
             >
               {(stateCityMap[employee.state] || []).map((city) => (
-                <MenuItem key={city} value={city}>
-                  {city}
-                </MenuItem>
+                <MenuItem key={city} value={city}>{city}</MenuItem>
               ))}
             </TextField>
           </Grid>
